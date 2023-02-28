@@ -1,0 +1,18 @@
+[project]
+name = "pyhubio"
+version = "1.0"
+description = "A small library to communicate with the applications for the USB104 A7 board"
+authors = [
+    {name = "Pavel Demin"},
+]
+dependencies = ["libusb1", "numpy"]
+requires-python = ">=3.9"
+readme = "README"
+license = {text = "MIT"}
+
+[project.urls]
+Homepage = "https://github.com/pavel-demin/pyhubio"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
