@@ -87,7 +87,7 @@ class PyhubJTAG:
         self.write(np.uint8(command))
         self.read(buffer)
         # clock
-        command = [0x86, 0x00, 0x00, 0xAB]
+        command = [0x8A, 0x86, 0x00, 0x00, 0xAB]
         self.write(np.uint8(command))
         self.read(buffer)
         # gpio
