@@ -207,8 +207,3 @@ class PyhubJTAG:
         self.shift_bits(0x05, 6)
         self.shift_dr()
         self.shift_bytes(data)
-        self.wait(1)
-        # start
-        self.shift_ir()
-        self.shift_bits(0x0C, 6)
-        self.wait(24)
