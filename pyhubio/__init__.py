@@ -165,7 +165,7 @@ class PyhubJTAG:
     def shift_bits(self, data, bits):
         bits -= 1
         command = []
-        if bits > 1:
+        if bits > 0:
             command += [0x1B, bits - 1, data]
         command += [0x4B, 1, ((data >> bits) & 1) << 7 | 0x03]
         self.write(np.uint8(command))
