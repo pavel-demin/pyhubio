@@ -172,6 +172,8 @@ class PyhubJTAG:
 
     def idcode(self):
         buffer = np.zeros(1, np.uint32)
+        self.shift_ir()
+        self.shift_bits(0x09, 6)
         self.shift_dr()
         command = [0x2C, 0x03, 0x00]
         self.write(np.uint8(command))
