@@ -1,5 +1,6 @@
 import usb1
 import numpy as np
+import time
 
 
 class PyhubIO:
@@ -110,17 +111,6 @@ class PyhubJTAG:
             view[offset : offset + size] = buffer
             offset += size
 
-    def wait(self, cycles):
-        div, mod = divmod(cycles, 8)
-        if div > 0:
-            div -= 1
-            command = [0x8F, div & 0xFF, div >> 8]
-            self.write(np.uint8(command))
-        if mod > 0:
-            mod -= 1
-            command = [0x8E, mod]
-            self.write(np.uint8(command))
-
     def tms(self, data, bits):
         command = [0x4B, bits - 1, data]
         self.write(np.uint8(command))
@@ -198,11 +188,12 @@ class PyhubJTAG:
         data = ((data >> 1) & 0x55) | ((data & 0x55) << 1)
         data = ((data >> 2) & 0x33) | ((data & 0x33) << 2)
         data = ((data >> 4) & 0x0F) | ((data & 0x0F) << 4)
-        # shutdown
+        # jprogram
         self.shift_ir()
-        self.shift_bits(0x0D, 6)
-        self.wait(12)
-        # configure
+        self.shift_bits(0x0B, 6)
+        self.reset()
+        time.sleep(0.01)
+        # cfg_in
         self.shift_ir()
         self.shift_bits(0x05, 6)
         self.shift_dr()
