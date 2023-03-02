@@ -163,10 +163,11 @@ class PyhubJTAG:
         self.state = 3
 
     def shift_bits(self, data, bits):
-        command = [0x1B, bits - 2, data]
-        self.write(np.uint8(command))
         bits -= 1
-        command = [0x4B, 1, ((data >> bits) & 1) << 7 | 0x03]
+        command = []
+        if bits > 1:
+            command += [0x1B, bits - 1, data]
+        command += [0x4B, 1, ((data >> bits) & 1) << 7 | 0x03]
         self.write(np.uint8(command))
         self.state = 1
 
