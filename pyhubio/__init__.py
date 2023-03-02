@@ -64,7 +64,6 @@ class PyhubJTAG:
         self.device = context.openByVendorIDAndProductID(0x0403, 0x6010)
         if self.device is None:
             raise Exception("unable to access USB device")
-        self.state = 0
         self.timeout = 1000
         # reset mode
         self.device.controlWrite(0x40, 0x0B, 0x0000, 0x01, bytes(), self.timeout)
@@ -115,42 +114,14 @@ class PyhubJTAG:
         command = [0x4B, bits - 1, data]
         self.write(np.uint8(command))
 
-    def reset(self):
-        self.tms(0x1F, 5)
-        self.state = 1
-
     def idle(self):
-        if self.state == 1:
-            self.tms(0x00, 1)
-        elif self.state == 2:
-            pass
-        elif self.state in {3, 4}:
-            self.tms(0x03, 3)
-        else:
-            raise Exception("unsupported state transition")
-        self.state = 2
+        self.tms(0x1F, 6)
 
     def shift_dr(self):
-        if self.state == 1:
-            self.tms(0x02, 4)
-        elif self.state == 2:
-            self.tms(0x01, 3)
-        elif self.state == 3:
-            pass
-        else:
-            raise Exception("unsupported state transition")
-        self.state = 3
+        self.tms(0x01, 3)
 
     def shift_ir(self):
-        if self.state == 1:
-            self.tms(0x06, 5)
-        elif self.state == 2:
-            self.tms(0x03, 4)
-        elif self.state == 4:
-            pass
-        else:
-            raise Exception("unsupported state transition")
-        self.state = 4
+        self.tms(0x03, 4)
 
     def shift_bits(self, data, bits):
         bits -= 1
@@ -159,7 +130,6 @@ class PyhubJTAG:
             command += [0x1B, bits - 1, data]
         command += [0x4B, 2, ((data >> bits) & 1) << 7 | 0x03]
         self.write(np.uint8(command))
-        self.state = 2
 
     def shift_bytes(self, data):
         view = data.view(np.uint8)
@@ -193,7 +163,7 @@ class PyhubJTAG:
         # jprogram
         self.shift_ir()
         self.shift_bits(0x0B, 6)
-        self.reset()
+        self.idle()
         time.sleep(0.01)
         # cfg_in
         self.shift_ir()
