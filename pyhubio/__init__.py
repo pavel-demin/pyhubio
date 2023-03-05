@@ -72,6 +72,22 @@ class PyhubIO:
                 view[offset : offset + size] = buffer
                 offset += size
 
+    def edge(self, data, bit, positive=True, addr=0):
+        result = data
+        if self.device:
+            command = (1 << 31) + addr
+            mask = 1 << bit
+            lo = data & ~mask
+            hi = data | mask
+            if positive:
+                sequence = np.uint32([command, lo, command, hi])
+                result = hi
+            else:
+                sequence = np.uint32([command, hi, command, lo])
+                result = lo
+            self.device.bulkWrite(0x02, sequence.tobytes(), self.timeout)
+        return result
+
 
 class PyhubJTAG:
     def __init__(self):
