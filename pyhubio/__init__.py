@@ -38,18 +38,17 @@ class PyhubIO:
             self.device.controlWrite(0x40, 0x00, 0x0001, 0x01, bytes(), self.timeout)
             self.device.controlWrite(0x40, 0x00, 0x0002, 0x01, bytes(), self.timeout)
 
-    def write(self, data, port=0, addr=0, incr=False):
+    def write(self, data, port=0, addr=0):
         if self.device:
             view = data.view(np.uint8)
             for part in np.split(view, np.arange(16384, view.size, 16384)):
                 size = part.size // 4
                 command = np.uint32((1 << 31) + ((size - 1) << 19) + (port << 16) + addr)
-                if incr:
-                    addr += 4096
+                addr = (addr + 4096) & 0xFFFF
                 self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
                 self.device.bulkWrite(0x02, part.tobytes(), self.timeout)
 
-    def read(self, data, port=1, addr=0, incr=False):
+    def read(self, data, port=1, addr=0):
         if self.device:
             view = data.view(np.uint8)
             size = view.size // 4
@@ -57,8 +56,7 @@ class PyhubIO:
             command = np.zeros(div + (mod > 0), np.uint32)
             for i in range(div):
                 command[i] = (4095 << 19) + (port << 16) + addr
-                if incr:
-                    addr += 4096
+                addr = (addr + 4096) & 0xFFFF
             if mod > 0:
                 command[-1] = ((mod - 1) << 19) + (port << 16) + addr
             self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
