@@ -43,8 +43,8 @@ class PyhubIO:
             view = data.view(np.uint8)
             for part in np.split(view, np.arange(16384, view.size, 16384)):
                 size = part.size // 4
-                command = np.uint32((1 << 31) + ((size - 1) << 19) + (port << 16) + addr)
-                addr = (addr + 4096) & 0xFFFF
+                command = np.uint32(1 << 31 | (size - 1) << 19 | (port & 0x7) << 16 | addr & 0xFFFF)
+                addr += 4096
                 self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
                 self.device.bulkWrite(0x02, part.tobytes(), self.timeout)
 
@@ -55,10 +55,10 @@ class PyhubIO:
             div, mod = divmod(size, 4096)
             command = np.zeros(div + (mod > 0), np.uint32)
             for i in range(div):
-                command[i] = (4095 << 19) + (port << 16) + addr
-                addr = (addr + 4096) & 0xFFFF
+                command[i] = 4095 << 19 | (port & 0x7) << 16 | addr & 0xFFFF
+                addr += 4096
             if mod > 0:
-                command[-1] = ((mod - 1) << 19) + (port << 16) + addr
+                command[-1] = (mod - 1) << 19 | (port & 0x7) << 16 | addr & 0xFFFF
             self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
             offset = 0
             limit = size * 4
@@ -73,7 +73,7 @@ class PyhubIO:
     def edge(self, data, bit, positive=True, addr=0):
         result = data
         if self.device:
-            command = (1 << 31) + addr
+            command = 1 << 31 | addr & 0xFFFF
             mask = 1 << bit
             lo = data & ~mask
             hi = data | mask
