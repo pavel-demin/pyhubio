@@ -4,7 +4,8 @@ import time
 
 
 class PyhubIO:
-    def __init__(self):
+    def __init__(self, vid=0x0403, pid=0x6014):
+        self.id = (vid, pid)
         self.context = None
         self.device = None
         self.timeout = 1000
@@ -13,7 +14,7 @@ class PyhubIO:
         if self.device:
             return
         self.context = usb1.USBContext()
-        self.device = self.context.openByVendorIDAndProductID(0x0403, 0x6014)
+        self.device = self.context.openByVendorIDAndProductID(*self.id)
         if self.device is None:
             raise Exception("unable to access USB device")
         # reset mode
@@ -88,7 +89,8 @@ class PyhubIO:
 
 
 class PyhubJTAG:
-    def __init__(self):
+    def __init__(self, vid=0x0403, pid=0x6010):
+        self.id = (vid, pid)
         self.context = None
         self.device = None
         self.timeout = 1000
@@ -97,7 +99,7 @@ class PyhubJTAG:
         if self.device:
             return
         self.context = usb1.USBContext()
-        self.device = self.context.openByVendorIDAndProductID(0x0403, 0x6010)
+        self.device = self.context.openByVendorIDAndProductID(*self.id)
         if self.device is None:
             raise Exception("unable to access USB device")
         # reset mode
