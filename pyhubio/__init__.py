@@ -41,10 +41,10 @@ class PyhubIO:
     def write(self, data, port=0, addr=0):
         if self.device:
             view = data.view(np.uint8)
-            for part in np.split(view, np.arange(16384, view.size, 16384)):
+            for part in np.split(view, np.arange(4096, view.size, 4096)):
                 size = part.size // 4
-                command = np.uint32(1 << 31 | (size - 1) << 19 | (port & 0x7) << 16 | addr & 0xFFFF)
-                addr += 4096
+                command = np.uint32(1 << 31 | (size - 1) << 21 | (port & 0x7) << 18 | addr & 0x3FFFF)
+                addr += 1024
                 self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
                 self.device.bulkWrite(0x02, part.tobytes(), self.timeout)
 
@@ -52,18 +52,18 @@ class PyhubIO:
         if self.device:
             view = data.view(np.uint8)
             size = view.size // 4
-            div, mod = divmod(size, 4096)
+            div, mod = divmod(size, 1024)
             command = np.zeros(div + (mod > 0), np.uint32)
             for i in range(div):
-                command[i] = 4095 << 19 | (port & 0x7) << 16 | addr & 0xFFFF
-                addr += 4096
+                command[i] = 1023 << 21 | (port & 0x7) << 18 | addr & 0x3FFFF
+                addr += 1024
             if mod > 0:
-                command[-1] = (mod - 1) << 19 | (port & 0x7) << 16 | addr & 0xFFFF
+                command[-1] = (mod - 1) << 21 | (port & 0x7) << 18 | addr & 0x3FFFF
             self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
             offset = 0
             limit = size * 4
             while offset < limit:
-                buffer = self.device.bulkRead(0x81, 16384, self.timeout)
+                buffer = self.device.bulkRead(0x81, 4096, self.timeout)
                 buffer = np.frombuffer(buffer, np.uint8)
                 buffer = buffer[np.mod(np.arange(buffer.size), 512) > 1]
                 size = buffer.size
@@ -73,7 +73,7 @@ class PyhubIO:
     def edge(self, data, bit, positive=True, addr=0):
         result = data
         if self.device:
-            command = 1 << 31 | addr & 0xFFFF
+            command = 1 << 31 | addr & 0x3FFFF
             mask = 1 << bit
             lo = data & ~mask
             hi = data | mask
