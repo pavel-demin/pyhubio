@@ -53,6 +53,8 @@ class PyhubIO:
         if self.device:
             view = data.view(np.uint8)
             size = view.size // 4
+            if size < 1:
+                return
             div, mod = divmod(size, 1024)
             command = np.zeros(div + (mod > 0), np.uint32)
             for i in range(div):
