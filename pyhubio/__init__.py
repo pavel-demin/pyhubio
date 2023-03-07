@@ -206,9 +206,9 @@ class PyhubJTAG:
                 if np.array_equal(data[i : i + 4], [0xAA, 0x99, 0x55, 0x66]):
                     break
             data = data[i:]
-            data = ((data >> 1) & 0x55) | ((data & 0x55) << 1)
-            data = ((data >> 2) & 0x33) | ((data & 0x33) << 2)
-            data = ((data >> 4) & 0x0F) | ((data & 0x0F) << 4)
+            data = (data >> 1) & 0x55 | (data & 0x55) << 1
+            data = (data >> 2) & 0x33 | (data & 0x33) << 2
+            data = (data >> 4) & 0x0F | (data & 0x0F) << 4
             # jprogram
             self.shift_ir()
             self.shift_bits(0x0B, 6)
