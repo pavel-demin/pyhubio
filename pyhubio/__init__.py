@@ -77,11 +77,10 @@ class PyhubIO:
             view[offset : offset + size] = buffer
             offset += size
 
-    def edge(self, data, bit, positive=True, addr=0):
+    def edge(self, data, mask, positive=True, addr=0):
         if self.device is None:
             return data
         command = 1 << 31 | addr & 0x3FFFF
-        mask = 1 << bit
         lo = data & ~mask
         hi = data | mask
         if positive:
