@@ -203,7 +203,7 @@ class PyhubJTAG:
         else:
             return 0x0FFFFFFF
 
-    def program(self, path):
+    def configure(self, path):
         if self.device:
             data = np.fromfile(path, np.uint8)
             for i in range(data.size - 4):
@@ -223,3 +223,11 @@ class PyhubJTAG:
             self.shift_bits(0x05, 6)
             self.shift_dr()
             self.shift_bytes(data)
+
+    def program(self, path):
+        self.start()
+        self.flush()
+        self.setup()
+        self.idle()
+        self.configure(path)
+        self.stop()
