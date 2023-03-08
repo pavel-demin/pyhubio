@@ -41,9 +41,9 @@ class PyhubIO:
 
     def write(self, data, port=0, addr=0):
         if self.device:
-            view = data.view(np.uint8)
-            for part in np.split(view, np.arange(4096, view.size, 4096)):
-                size = part.size // 4
+            view = data.view(np.uint32)
+            for part in np.split(view, np.arange(1024, view.size, 1024)):
+                size = part.size
                 command = np.uint32(1 << 31 | (size - 1) << 21 | (port & 0x7) << 18 | addr & 0x3FFFF)
                 addr += 1024
                 self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
