@@ -6,7 +6,7 @@ authors = [
     {name = "Pavel Demin"},
 ]
 dependencies = ["libusb1", "numpy"]
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 readme = "README"
 license = {text = "MIT"}
 
