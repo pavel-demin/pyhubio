@@ -17,6 +17,7 @@ class PyhubIO:
         self.device = self.context.openByVendorIDAndProductID(*self.id)
         if self.device is None:
             raise Exception("unable to access USB device")
+        self.device.claimInterface(0)
         # reset mode
         self.device.controlWrite(0x40, 0x0B, 0x0000, 0x01, bytes(), self.timeout)
         # sync fifo mode
@@ -107,6 +108,7 @@ class PyhubJTAG:
         self.device = self.context.openByVendorIDAndProductID(*self.id)
         if self.device is None:
             raise Exception("unable to access USB device")
+        self.device.claimInterface(0)
         # reset mode
         self.device.controlWrite(0x40, 0x0B, 0x0000, 0x01, bytes(), self.timeout)
         # mpsse mode
