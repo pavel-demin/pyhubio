@@ -49,34 +49,34 @@ class PyhubIO:
         for part in np.split(view, np.arange(1024, view.size, 1024)):
             size = part.size
             command = np.uint32(1 << 31 | (size - 1) << 21 | (port & 0x7) << 18 | addr & 0x3FFFF)
-            addr += 1024
+            addr += part.size
             self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
             self.device.bulkWrite(0x02, part.tobytes(), self.timeout)
 
     def read(self, data, port=1, addr=0):
         if self.device is None:
             return
-        view = data.view(np.uint8)
-        size = view.size // 4
-        if size < 1:
-            return
-        div, mod = divmod(size, 1024)
-        command = np.zeros(div + (mod > 0), np.uint32)
-        for i in range(div):
-            command[i] = 1023 << 21 | (port & 0x7) << 18 | addr & 0x3FFFF
-            addr += 1024
-        if mod > 0:
-            command[-1] = (mod - 1) << 21 | (port & 0x7) << 18 | addr & 0x3FFFF
-        self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
-        offset = 0
-        limit = size * 4
-        while offset < limit:
-            buffer = self.device.bulkRead(0x81, 4096, self.timeout)
-            buffer = np.frombuffer(buffer, np.uint8)
-            buffer = buffer[np.mod(np.arange(buffer.size), 512) > 1]
-            size = buffer.size
-            view[offset : offset + size] = buffer
-            offset += size
+        view = data.view(np.uint32)
+        for part in np.split(view, np.arange(16384, view.size, 16384)):
+            view = part.view(np.uint8)
+            size = part.size
+            incr = np.arange(0, size, 1024, np.uint32)
+            rlen = np.full_like(incr, 1023)
+            mod = size % 1024
+            if mod > 0:
+                rlen[-1] = mod - 1
+            command = rlen << 21 | (port & 0x7) << 18 | (addr + incr) & 0x3FFFF
+            self.device.bulkWrite(0x02, command.tobytes(), self.timeout)
+            offset = 0
+            limit = view.size
+            while offset < limit:
+                buffer = self.device.bulkRead(0x81, 4096, self.timeout)
+                buffer = np.frombuffer(buffer, np.uint8)
+                buffer = buffer[np.mod(np.arange(buffer.size), 512) > 1]
+                size = buffer.size
+                view[offset : offset + size] = buffer
+                offset += size
+            addr += part.size
 
     def edge(self, data, mask, positive=True, addr=0):
         if self.device is None:
