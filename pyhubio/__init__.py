@@ -57,7 +57,7 @@ class PyhubIO:
         if self.device is None:
             return
         view = data.view(np.uint32)
-        for part in np.split(view, np.arange(16384, view.size, 16384)):
+        for part in np.split(view, np.arange(1048576, view.size, 1048576)):
             view = part.view(np.uint8)
             size = part.size
             incr = np.arange(0, size, 1024, np.uint32)
