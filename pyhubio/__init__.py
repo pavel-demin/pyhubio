@@ -74,7 +74,9 @@ class PyhubIO:
                 buffer = np.frombuffer(buffer, np.uint8)
                 buffer = buffer[np.mod(np.arange(buffer.size), 512) > 1]
                 size = buffer.size
-                view[offset : offset + size] = buffer
+                if size > limit - offset:
+                    size = limit - offset
+                view[offset : offset + size] = buffer[:size]
                 offset += size
             addr += part.size
 
