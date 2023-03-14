@@ -114,7 +114,7 @@ class PyhubJTAG:
         # reset mode
         self.device.controlWrite(0x40, 0x0B, 0x0000, 0x01, bytes(), self.timeout)
         # mpsse mode
-        self.device.controlWrite(0x40, 0x0B, 0x028B, 0x01, bytes(), self.timeout)
+        self.device.controlWrite(0x40, 0x0B, 0x0200, 0x01, bytes(), self.timeout)
         # latency timer
         self.device.controlWrite(0x40, 0x09, 0x0001, 0x01, bytes(), self.timeout)
 
