@@ -57,6 +57,7 @@ class PyhubIO:
         if self.device is None:
             return
         view = data.view(np.uint32)
+        idxs = np.mod(np.arange(4096), 512) > 1
         for part in np.split(view, np.arange(1048576, view.size, 1048576)):
             view = part.view(np.uint8)
             size = part.size
@@ -71,8 +72,8 @@ class PyhubIO:
             limit = view.size
             while offset < limit:
                 buffer = self.device.bulkRead(0x81, 4096, self.timeout)
-                buffer = np.frombuffer(buffer, np.uint8)
-                buffer = buffer[np.mod(np.arange(buffer.size), 512) > 1]
+                size = len(buffer)
+                buffer = np.frombuffer(buffer, np.uint8)[idxs[:size]]
                 size = buffer.size
                 if size > limit - offset:
                     size = limit - offset
