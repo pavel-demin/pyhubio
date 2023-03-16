@@ -1,13 +1,13 @@
 [project]
 name = "pyhubio"
-version = "1.0"
+version = "1.2"
 description = "A small library to communicate with the applications for the USB104 A7 board"
 authors = [
     {name = "Pavel Demin"},
 ]
 dependencies = ["libusb1", "numpy"]
 requires-python = ">=3.8"
-readme = "README"
+readme = "README.md"
 license = {text = "MIT"}
 
 [project.urls]
