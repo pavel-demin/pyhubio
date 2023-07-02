@@ -1,7 +1,7 @@
 [project]
 name = "pyhubio"
-version = "1.2"
-description = "A small library to communicate with the applications for the USB104 A7 board"
+version = "1.3"
+description = "A small library to communicate with AXI4 and AXI4-Stream hubs"
 authors = [
     {name = "Pavel Demin"},
 ]
